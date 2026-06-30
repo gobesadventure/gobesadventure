@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GOBE’S ADVENTURE — raid the deep forest</title>
+  <meta name="description" content="GOBLIN — a voxel goblin forest of monsters, bows & loot. Play as a goblin archer, raid the wilds, earn $GOBE on Solana.">
+  <link rel="canonical" href="https://gobesadventure.xyz/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Gobe’s Adventure">
+  <meta property="og:url" content="https://gobesadventure.xyz/">
+  <meta property="og:title" content="GOBE’S ADVENTURE — raid the deep forest">
+  <meta property="og:description" content="Voxel goblin forest of monsters, bows & loot. $GOBE on Solana · Launch Jul 1 2026 · 6 PM UTC.">
+  <meta property="og:image" content="https://gobesadventure.xyz/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="GOBE’S ADVENTURE — goblin archer in the deep forest">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@gobesadventure">
+  <meta name="twitter:title" content="GOBE’S ADVENTURE — raid the deep forest">
+  <meta name="twitter:description" content="Voxel goblin forest of monsters, bows & loot. $GOBE on Solana · Launch Jul 1 2026 · 6 PM UTC.">
+  <meta name="twitter:image" content="https://gobesadventure.xyz/og.png">
+
+  <meta name="theme-color" content="#0a2412">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <script defer src="token.js?v=2"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Cinzel+Decorative:wght@700;900&family=MedievalSharp&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root { --vibe-rgb: 120, 190, 40; }
+
+    body {
+      background: radial-gradient(ellipse at 50% 118%, #11331a 0%, #0a2412 32%, #05130a 62%, #030c06 100%);
+      color: #e0e0e0;
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Ambient background glow */
+    .bg-glow {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -60%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(var(--vibe-rgb), 0.12) 0%, rgba(var(--vibe-rgb), 0.03) 40%, transparent 70%);
+      pointer-events: none;
+      animation: breathe 4s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.6; transform: translate(-50%, -60%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); }
+    }
+
+    /* ===== Deep-forest background ===== */
+
+    /* Drifting ground mist over the forest floor */
+    .grid-floor {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 40vh;
+      background:
+        radial-gradient(120% 80% at 50% 100%, rgba(120, 190, 40, 0.16), transparent 60%),
+        repeating-linear-gradient(90deg, rgba(150, 220, 90, 0.05) 0 140px, transparent 140px 300px);
+      filter: blur(6px);
+      animation: mist-drift 26s ease-in-out infinite alternate;
+      mask-image: linear-gradient(to top, #000 0%, transparent 85%);
+      -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes mist-drift {
+      0% { transform: translateX(-3vw); opacity: 0.7; }
+      100% { transform: translateX(3vw); opacity: 1; }
+    }
+
+    /* Forest tree-line layers */
+    .city {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .city svg { display: block; width: 100%; height: auto; }
+
+    .city-back { opacity: 0.6; }
+    .city-front { filter: drop-shadow(0 -2px 18px rgba(120, 190, 40, 0.18)); }
+
+    /* Green forest glow rising from the canopy */
+    .horizon {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 38vh;
+      background: linear-gradient(to top, rgba(80, 150, 40, 0.22), rgba(120, 190, 40, 0.08) 45%, transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Falling leaves */
+    .leaf {
+      position: fixed;
+      top: -4vh;
+      width: 9px;
+      height: 9px;
+      background: var(--leaf, #6fae2f);
+      border-radius: 0 100% 0 100%;
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: 0;
+      animation: leaf-fall linear infinite;
+    }
+
+    @keyframes leaf-fall {
+      0% { transform: translateY(-6vh) translateX(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.85; }
+      90% { opacity: 0.85; }
+      100% { transform: translateY(112vh) translateX(8vw) rotate(540deg); opacity: 0; }
+    }
+
+    /* Blinking antenna beacons */
+    .beacon {
+      position: fixed;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #f87171;
+      box-shadow: 0 0 8px 2px rgba(248, 113, 113, 0.7);
+      animation: blink 2.4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .beacon.cyan {
+      background: #78be28;
+      box-shadow: 0 0 8px 2px rgba(120, 190, 40, 0.7);
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 1; }
+    }
+
+    /* Fireflies drifting across the canopy */
+    .drone {
+      position: fixed;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(190, 242, 100, 0.95);
+      box-shadow: 0 0 7px 2px rgba(163, 230, 53, 0.6);
+      animation: fly linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes fly {
+      0% { transform: translateX(-6vw); opacity: 0; }
+      8% { opacity: 1; }
+      92% { opacity: 1; }
+      100% { transform: translateX(106vw); opacity: 0; }
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      z-index: 1;
+      padding: 2rem;
+      max-width: 660px;
+      text-align: center;
+    }
+
+    /* Avatar with float + glow */
+    .avatar-wrapper {
+      position: relative;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .avatar-glow {
+      position: absolute;
+      inset: -20px;
+      background: radial-gradient(circle, rgba(var(--vibe-rgb), 0.35) 0%, transparent 70%);
+      border-radius: 50%;
+      filter: blur(20px);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-16px); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    .avatar {
+      width: 320px;
+      height: 280px;
+      object-fit: contain;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 0 20px rgba(var(--vibe-rgb), 0.3));
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #fff;
+      text-shadow: 0 0 34px rgba(var(--vibe-rgb), 0.45);
+    }
+
+    .tagline {
+      color: #888;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .tagline strong {
+      color: rgb(var(--vibe-rgb));
+    }
+
+    /* Token address */
+    .token {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .token-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: rgb(var(--vibe-rgb));
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      text-shadow: 0 0 14px rgba(var(--vibe-rgb), 0.75), 0 0 30px rgba(var(--vibe-rgb), 0.35);
+    }
+
+    .token-address {
+      font-size: 0.8rem;
+      color: rgb(var(--vibe-rgb));
+      background: rgba(var(--vibe-rgb), 0.08);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: 1px solid rgba(var(--vibe-rgb), 0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .token-address:hover {
+      background: rgba(var(--vibe-rgb), 0.16);
+      border-color: rgba(var(--vibe-rgb), 0.35);
+    }
+
+    .token-chain {
+      font-size: 0.7rem;
+      color: #444;
+    }
+
+    /* Launch countdown */
+    .countdown { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin: 0.2rem 0 0.1rem; }
+    .cd-label { font-size: 0.7rem; letter-spacing: 0.22em; color: rgb(var(--vibe-rgb)); text-shadow: 0 0 12px rgba(var(--vibe-rgb), 0.6); }
+    .cd-grid { display: flex; gap: 0.45rem; }
+    .cd-cell {
+      display: flex; flex-direction: column; align-items: center; min-width: 56px;
+      padding: 0.5rem 0.4rem; background: rgba(var(--vibe-rgb), 0.08);
+      border: 1px solid rgba(var(--vibe-rgb), 0.28); border-radius: 8px;
+      box-shadow: inset 0 0 12px rgba(var(--vibe-rgb), 0.08);
+    }
+    .cd-cell b { font-size: 1.5rem; font-weight: 700; color: #eafbd2; line-height: 1; font-variant-numeric: tabular-nums; }
+    .cd-cell i { font-size: 0.52rem; letter-spacing: 0.14em; color: #7a9b4e; font-style: normal; margin-top: 5px; text-transform: uppercase; }
+    .cd-date { font-size: 0.66rem; color: #6f8f44; letter-spacing: 0.12em; }
+
+    /* Buy on pump.fun — primary CTA */
+    .buy-btn {
+      margin-top: 0.3rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #04130f;
+      background: linear-gradient(135deg, #a3d65c, #78be28);
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      border: 1px solid rgba(168, 222, 80, 0.5);
+      box-shadow: 0 0 22px rgba(120, 190, 40, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+    .buy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 32px rgba(120, 190, 40, 0.6);
+    }
+
+    .token-ca { cursor: pointer; }
+    .token-ca:hover { color: #a3d65c; }
+
+    /* Links */
+    .links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .links a {
+      color: #888;
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid #1b2733;
+      border-radius: 6px;
+      transition: all 0.2s;
+      background: rgba(5, 8, 13, 0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .links a svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+    }
+
+    .links a:hover {
+      color: #fff;
+      border-color: #3a4d5e;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .links a.primary {
+      border-color: rgba(var(--vibe-rgb), 0.65);
+      color: rgb(var(--vibe-rgb));
+      background: rgba(var(--vibe-rgb), 0.10);
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(var(--vibe-rgb), 0.6);
+      box-shadow: 0 0 16px rgba(var(--vibe-rgb), 0.35), inset 0 0 12px rgba(var(--vibe-rgb), 0.12);
+      animation: btn-glow 1.8s ease-in-out infinite;
+    }
+
+    @keyframes btn-glow {
+      50% {
+        box-shadow: 0 0 34px rgba(var(--vibe-rgb), 0.8), inset 0 0 18px rgba(var(--vibe-rgb), 0.22);
+        border-color: rgba(var(--vibe-rgb), 1);
+        color: #ffffff;
+      }
+    }
+
+    .links a.primary:hover {
+      background: rgba(var(--vibe-rgb), 0.2);
+      border-color: rgb(var(--vibe-rgb));
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    /* Particles */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: rgba(var(--vibe-rgb), 0.35);
+      border-radius: 50%;
+      animation: drift linear infinite;
+    }
+
+    @keyframes drift {
+      0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) translateX(40px); opacity: 0; }
+    }
+
+    /* Boot loading overlay */
+    .boot-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 110%, #0a2412, #04100a 70%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.6rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .boot-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .boot-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(120, 190, 40, 0.025) 4px);
+      pointer-events: none;
+    }
+
+    .boot-scene {
+      width: min(94vw, 940px);
+      max-width: 94vw;
+      height: 300px;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    .boot-title {
+      font-size: 1.6rem;
+      letter-spacing: 0.16em;
+      color: #cdef8a;
+      text-transform: uppercase;
+      text-shadow: 0 0 18px rgba(120, 190, 40, 0.55);
+    }
+
+    .boot-bar {
+      width: min(80vw, 360px);
+      height: 7px;
+      background: rgba(120, 190, 40, 0.14);
+      border: 1px solid rgba(120, 190, 40, 0.3);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .boot-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #4d7c0f, #84cc16, #bef264);
+      box-shadow: 0 0 12px rgba(120, 190, 40, 0.8);
+      transition: width 0.12s linear;
+    }
+
+    .boot-cap {
+      font-size: 1rem;
+      color: #9ec46a;
+      height: 1.6em;
+      letter-spacing: 0.03em;
+      text-shadow: 0 0 10px rgba(120, 190, 40, 0.3);
+    }
+
+    @media (max-width: 500px) {
+      .avatar { width: 200px; height: 175px; }
+      h1 { font-size: 2rem; }
+      .token-address { font-size: 0.7rem; }
+    }
+
+    /* ===== Fantasy goblin-dungeon hero fonts ===== */
+    h1 {
+      font-family: 'Cinzel Decorative', serif;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      font-size: 3.2rem;
+      background: linear-gradient(180deg, #f4ffe0 0%, #b6e36b 55%, #6fae2f 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 0 rgba(0,0,0,0.4)) drop-shadow(0 0 26px rgba(120,190,40,0.5));
+    }
+    .tagline, .links a, .buy-btn, .cd-label, .cd-date, .boot-cap {
+      font-family: 'MedievalSharp', cursive;
+    }
+    .tagline { font-size: 1.08rem; letter-spacing: 0.02em; }
+    .links a { letter-spacing: 0.05em; font-size: 0.95rem; }
+    .token-label, .boot-title, .cd-cell b {
+      font-family: 'Cinzel', serif;
+    }
+    .token-label { font-size: 1.05rem; letter-spacing: 0.22em; }
+    .cd-cell b { font-weight: 800; }
+    @media (max-width: 500px) { h1 { font-size: 2.3rem; } }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <div class="horizon"></div>
+  <div class="grid-floor"></div>
+
+  <!-- Deep-forest tree-line (distant canopy) -->
+  <div class="city city-back" style="bottom: 4vh;">
+    <svg viewBox="0 0 1440 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0e2410" d="M0,220 L0,150 L60,150 L90,90 L120,150 L180,150 L215,70 L250,150 L320,150 L355,95 L390,150 L460,150 L500,55 L540,150 L610,150 L645,95 L680,150 L750,150 L790,65 L830,150 L900,150 L935,100 L970,150 L1040,150 L1080,60 L1120,150 L1190,150 L1225,95 L1260,150 L1330,150 L1370,75 L1410,150 L1440,150 L1440,220 Z"/>
+    </svg>
+  </div>
+
+  <div class="city city-front">
+    <svg viewBox="0 0 1440 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0a1c0a" d="M0,180 L0,120 L45,40 L90,118 L135,55 L180,120 L225,30 L270,112 L315,60 L360,120 L405,25 L450,116 L495,55 L540,120 L585,35 L630,110 L675,18 L720,116 L765,55 L810,120 L855,40 L900,110 L945,60 L990,120 L1035,28 L1080,116 L1125,55 L1170,120 L1215,40 L1260,110 L1305,25 L1350,116 L1395,55 L1440,120 L1440,180 Z"/>
+      <rect x="0" y="178" width="1440" height="2" fill="rgba(120,190,40,0.45)"/>
+    </svg>
+  </div>
+
+  <!-- Glowing mushrooms / lantern-glow on the forest floor -->
+  <span class="beacon" style="left: 6.7%; bottom: calc(180px * 0.55); animation-delay: 0s;"></span>
+  <span class="beacon cyan" style="left: 46.8%; bottom: calc(180px * 0.62); animation-delay: 0.8s;"></span>
+  <span class="beacon" style="left: 89.5%; bottom: calc(180px * 0.5); animation-delay: 1.5s;"></span>
+
+  <!-- Fireflies drifting through the canopy -->
+  <span class="drone" style="top: 18%; animation-duration: 26s; animation-delay: 0s;"></span>
+  <span class="drone" style="top: 30%; animation-duration: 34s; animation-delay: 9s;"></span>
+  <span class="drone" style="top: 12%; animation-duration: 42s; animation-delay: 18s;"></span>
+  <span class="drone" style="top: 42%; animation-duration: 30s; animation-delay: 4s;"></span>
+
+  <div class="particles" id="particles"></div>
+
+  <div class="container">
+    <div class="avatar-wrapper">
+      <div class="avatar-glow"></div>
+      <canvas id="avatarCv" class="avatar" width="640" height="560" aria-label="GOBLIN"></canvas>
+    </div>
+
+    <h1>GOBE’S ADVENTURE</h1>
+
+    <p class="tagline">
+      Warband of the <strong>deep goblin forest</strong>.<br>
+      Raid the wilds, hunt the monsters, loot &amp; level up your goblin archer.
+    </p>
+
+    <div class="token">
+      <span class="token-label">$GOBE</span>
+      <div class="countdown" id="countdown" data-goblin-when-pending>
+        <div class="cd-label">🚀 $GOBE LAUNCH IN</div>
+        <div class="cd-grid">
+          <div class="cd-cell"><b id="cd-d">--</b><i>days</i></div>
+          <div class="cd-cell"><b id="cd-h">--</b><i>hrs</i></div>
+          <div class="cd-cell"><b id="cd-m">--</b><i>min</i></div>
+          <div class="cd-cell"><b id="cd-s">--</b><i>sec</i></div>
+        </div>
+        <div class="cd-date">JUL 1 2026 · 6 PM UTC</div>
+      </div>
+      <a href="#" class="token-address token-ca" data-goblin-when-live data-goblin-copy hidden>
+        <span data-goblin-ca-short data-copy-flash>COMING SOON</span> &nbsp;⧉ copy
+      </a>
+      <a class="buy-btn" data-goblin-buy href="https://pump.fun" target="_blank" rel="noopener">BUY ON PUMP.FUN ▸</a>
+      <span class="token-chain">Network: Solana · <span data-goblin-ca>Contract address revealed at launch</span></span>
+    </div>
+
+    <div class="links">
+      <a href="https://x.com/gobesadventure" target="_blank" rel="noopener">X / Twitter</a>
+      <a href="world.html" id="system-btn" class="primary">GOBE’S ADVENTURE</a>
+      <a href="https://t.me/gobesadventure" target="_blank" rel="noopener">Join Telegram</a>
+      <a href="https://github.com/gobesadventure/gobesadventure" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>GitHub</a>
+    </div>
+  </div>
+
+  <div class="boot-overlay" id="boot-overlay">
+    <div class="boot-title">GOBE’S ADVENTURE</div>
+    <canvas id="bootCv" class="boot-scene" width="940" height="300" aria-hidden="true"></canvas>
+    <div class="boot-bar"><div class="boot-bar-fill" id="boot-fill"></div></div>
+    <div class="boot-cap" id="boot-cap">Trekking into the wilds…</div>
+  </div>
+
+  <script>
+    // Voxel mascot: the in-game GOBLIN unit, cycling through the 4 unit colors.
+    // The hero "vibe" (glows, particles, title) follows the current color.
+    (function () {
+      const heroCv = document.getElementById('avatarCv');
+      const heroCtx = heroCv.getContext('2d');
+      const bootCv2 = document.getElementById('bootCv');
+      const bootCtx = bootCv2 ? bootCv2.getContext('2d') : null;
+      let ctx = heroCtx, W = heroCv.width, H = heroCv.height, Z = 5.4;
+      const DARK = 'rgba(0,0,0,0.55)';
+      const PALS = [ // goblin war-tribes — all green-family so the hero glow stays goblin-green
+        { body: [[124, 179, 66], [101, 150, 52], [80, 124, 42]], visor: [225, 255, 150], glow: [132, 204, 22] },
+        { body: [[139, 174, 74], [112, 142, 58], [90, 116, 46]], visor: [210, 240, 130], glow: [150, 190, 40] },
+        { body: [[156, 191, 60], [126, 158, 46], [101, 128, 36]], visor: [235, 255, 150], glow: [168, 210, 50] },
+        { body: [[110, 150, 72], [88, 123, 58], [70, 100, 46]], visor: [255, 224, 130], glow: [140, 180, 70] },
+      ];
+      const mixv = (a, b, f) => a.map((v, i) => Math.round(v + (b[i] - v) * f));
+      const css = c => 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+      function pal(t) {
+        const period = 5200, fade = 1000;
+        const k = Math.floor(t / period) % PALS.length;
+        const n = (k + 1) % PALS.length;
+        const ph = t % period;
+        let f = ph > period - fade ? (ph - (period - fade)) / fade : 0;
+        f = f < 0.5 ? 2 * f * f : 1 - Math.pow(-2 * f + 2, 2) / 2;
+        return {
+          body: PALS[k].body.map((c, i) => mixv(c, PALS[n].body[i], f)),
+          visor: mixv(PALS[k].visor, PALS[n].visor, f),
+          glow: mixv(PALS[k].glow, PALS[n].glow, f),
+        };
+      }
+      function cube(sx, syb, e, w, d, h, top, left, right, ol) {
+        const sy = syb - e * Z;
+        w *= Z; d *= Z; h *= Z;
+        const c1 = [sx + w - d, sy + (w + d) / 2];
+        const c2 = [sx + w + d, sy + (w - d) / 2];
+        const c3 = [sx - w + d, sy - (w + d) / 2];
+        const c4 = [sx - w - d, sy - (w - d) / 2];
+        const t1 = [c1[0], c1[1] - h], t2 = [c2[0], c2[1] - h], t3 = [c3[0], c3[1] - h], t4 = [c4[0], c4[1] - h];
+        ctx.fillStyle = left;
+        ctx.beginPath(); ctx.moveTo(...c4); ctx.lineTo(...c1); ctx.lineTo(...t1); ctx.lineTo(...t4); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = right;
+        ctx.beginPath(); ctx.moveTo(...c1); ctx.lineTo(...c2); ctx.lineTo(...t2); ctx.lineTo(...t1); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = top;
+        ctx.beginPath(); ctx.moveTo(...t1); ctx.lineTo(...t2); ctx.lineTo(...t3); ctx.lineTo(...t4); ctx.closePath(); ctx.fill();
+        if (ol) {
+          ctx.strokeStyle = ol; ctx.lineWidth = Math.max(1, Z * 0.38);
+          ctx.beginPath();
+          ctx.moveTo(...c4); ctx.lineTo(...c1); ctx.lineTo(...c2); ctx.lineTo(...t2); ctx.lineTo(...t3); ctx.lineTo(...t4); ctx.closePath();
+          ctx.moveTo(...c1); ctx.lineTo(...t1); ctx.moveTo(...t1); ctx.lineTo(...t2); ctx.moveTo(...t1); ctx.lineTo(...t4);
+          ctx.stroke();
+        }
+        return { c1, c2, t1, t2 };
+      }
+      function faceR(b, u, v) {
+        const tx = b.t1[0] + (b.t2[0] - b.t1[0]) * u, ty = b.t1[1] + (b.t2[1] - b.t1[1]) * u;
+        const bx = b.c1[0] + (b.c2[0] - b.c1[0]) * u, by = b.c1[1] + (b.c2[1] - b.c1[1]) * u;
+        return [tx + (bx - tx) * v, ty + (by - ty) * v];
+      }
+      function drawUnit(t, P) {
+        ctx.clearRect(0, 0, W, H);
+        const sk = P.body.map(css);                  // green goblin skin shades
+        const tunic = ['#7a5230', '#5d3e23', '#48301a'];   // leather tunic
+        const glowS = P.glow.join(',');
+        const cx = W / 2, base = H * 0.82;
+        const bob = Math.sin(t / 540) * 1.1;
+        const sway = Math.sin(t / 380);
+        // mossy ground glow under the goblin
+        const gl = ctx.createRadialGradient(cx, base + 1.5 * Z, 0, cx, base + 1.5 * Z, 13 * Z);
+        gl.addColorStop(0, 'rgba(' + glowS + ',0.45)');
+        gl.addColorStop(1, 'rgba(' + glowS + ',0)');
+        ctx.fillStyle = gl;
+        ctx.beginPath(); ctx.ellipse(cx, base + 1.5 * Z, 13 * Z, 5 * Z, 0, 0, 7); ctx.fill();
+
+        // --- legs + feet ---
+        cube(cx - 1.7 * Z, base + 0.3 * Z, 0, 1.6, 1.6, 4.4 + sway * 0.6, sk[0], sk[1], sk[2], DARK);
+        cube(cx + 1.7 * Z, base + 0.3 * Z, 0, 1.6, 1.6, 4.4 - sway * 0.6, sk[0], sk[1], sk[2], DARK);
+        cube(cx - 1.7 * Z, base + 1.0 * Z, 0, 1.9, 2.3, 1.2, '#3a2a18', '#2c2012', '#241a0e');
+        cube(cx + 1.7 * Z, base + 1.0 * Z, 0, 1.9, 2.3, 1.2, '#3a2a18', '#2c2012', '#241a0e');
+
+        const bodyE = 4.4 + bob;
+        // --- leather tunic torso ---
+        const b = cube(cx, base, bodyE, 5.2, 4.2, 7.2, tunic[0], tunic[1], tunic[2], DARK);
+        cube(cx, base, bodyE + 0.1, 5.4, 4.4, 1.3, '#52341c', '#3f2814', '#321f0f'); // belt
+        const bk = faceR(b, 0.5, 0.66);                 // glowing belt buckle
+        ctx.fillStyle = css(P.visor);
+        ctx.fillRect(bk[0] - 0.8 * Z, bk[1] - 0.8 * Z, 1.6 * Z, 1.6 * Z);
+
+        // --- arms ---
+        cube(cx - 2.7 * Z, base - 0.2 * Z, bodyE + 1.0, 1.5, 1.5, 5.4, sk[1], sk[2], sk[2], DARK); // back arm
+        cube(cx + 2.6 * Z, base - 0.2 * Z, bodyE + 2.6, 1.5, 1.5, 4.6, sk[0], sk[1], sk[2], DARK); // bow arm
+
+        // --- head ---
+        const hE = bodyE + 7.0;
+        const hb = cube(cx, base, hE, 5.8, 5.2, 5.4, sk[0], sk[1], sk[2], DARK);
+        // big pointy ears
+        cube(cx - 3.9 * Z, base - 0.1 * Z, hE + 1.4, 1.0, 1.6, 1.9, sk[1], sk[2], sk[2], DARK);
+        cube(cx - 4.7 * Z, base - 0.1 * Z, hE + 2.6, 0.7, 1.1, 1.4, sk[1], sk[2], sk[2]);
+        cube(cx + 3.9 * Z, base - 0.1 * Z, hE + 1.4, 1.0, 1.6, 1.9, sk[0], sk[1], sk[2], DARK);
+        cube(cx + 4.7 * Z, base - 0.1 * Z, hE + 2.6, 0.7, 1.1, 1.4, sk[0], sk[1], sk[2]);
+        // a couple of scruffy hair tufts on top
+        cube(cx - 1.0 * Z, base, hE + 5.4, 0.7, 0.7, 1.6, '#2f1d10', '#241509', '#1c1007');
+        cube(cx + 0.9 * Z, base, hE + 5.4, 0.7, 0.7, 2.0, '#2f1d10', '#241509', '#1c1007');
+
+        // face features on the right-facing head plane
+        const eL = faceR(hb, 0.33, 0.42), eR = faceR(hb, 0.64, 0.42);
+        // heavy angry brow
+        ctx.strokeStyle = '#3a2410'; ctx.lineWidth = 1.4 * Z; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(eL[0] - 1.2 * Z, eL[1] - 1.6 * Z); ctx.lineTo(eL[0] + 1.0 * Z, eL[1] - 0.7 * Z); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(eR[0] - 1.0 * Z, eR[1] - 0.7 * Z); ctx.lineTo(eR[0] + 1.2 * Z, eR[1] - 1.6 * Z); ctx.stroke();
+        // glowing eyes
+        [eL, eR].forEach(ep => {
+          ctx.fillStyle = '#1a1205';
+          ctx.beginPath(); ctx.arc(ep[0], ep[1], 1.5 * Z, 0, 7); ctx.fill();
+          ctx.fillStyle = css(P.visor);
+          ctx.beginPath(); ctx.arc(ep[0], ep[1], 1.0 * Z, 0, 7); ctx.fill();
+          ctx.fillStyle = '#fff';
+          ctx.beginPath(); ctx.arc(ep[0] - 0.35 * Z, ep[1] - 0.35 * Z, 0.4 * Z, 0, 7); ctx.fill();
+          const eg = ctx.createRadialGradient(ep[0], ep[1], 0, ep[0], ep[1], 3 * Z);
+          eg.addColorStop(0, 'rgba(' + glowS + ',0.5)'); eg.addColorStop(1, 'rgba(' + glowS + ',0)');
+          ctx.fillStyle = eg; ctx.beginPath(); ctx.arc(ep[0], ep[1], 3 * Z, 0, 7); ctx.fill();
+        });
+        // big crooked nose
+        const np = faceR(hb, 0.5, 0.62);
+        ctx.fillStyle = sk[2];
+        ctx.beginPath(); ctx.moveTo(np[0] - 1.0 * Z, np[1] - 0.6 * Z); ctx.lineTo(np[0] + 1.0 * Z, np[1] - 0.6 * Z); ctx.lineTo(np[0] + 0.3 * Z, np[1] + 1.7 * Z); ctx.closePath(); ctx.fill();
+        // grin + two fangs
+        const mp = faceR(hb, 0.5, 0.84);
+        ctx.strokeStyle = '#2a1a0c'; ctx.lineWidth = 0.7 * Z;
+        ctx.beginPath(); ctx.moveTo(mp[0] - 1.6 * Z, mp[1]); ctx.lineTo(mp[0] + 1.6 * Z, mp[1]); ctx.stroke();
+        ctx.fillStyle = '#f5f5dc';
+        ctx.beginPath(); ctx.moveTo(mp[0] - 1.2 * Z, mp[1]); ctx.lineTo(mp[0] - 0.5 * Z, mp[1]); ctx.lineTo(mp[0] - 0.85 * Z, mp[1] + 1.1 * Z); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(mp[0] + 0.5 * Z, mp[1]); ctx.lineTo(mp[0] + 1.2 * Z, mp[1]); ctx.lineTo(mp[0] + 0.85 * Z, mp[1] + 1.1 * Z); ctx.closePath(); ctx.fill();
+
+        // --- wooden bow + nocked arrow, aimed to the right ---
+        const bowX = cx + 5.6 * Z, bowY = base - (bodyE + 4.0) * Z;
+        ctx.strokeStyle = '#6b4423'; ctx.lineWidth = 1.5 * Z; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(bowX - 2.4 * Z, bowY, 7.2 * Z, -1.15, 1.15); ctx.stroke();
+        const tipY1 = bowY + 7.2 * Z * Math.sin(-1.15), tipX1 = bowX - 2.4 * Z + 7.2 * Z * Math.cos(-1.15);
+        const tipY2 = bowY + 7.2 * Z * Math.sin(1.15), tipX2 = bowX - 2.4 * Z + 7.2 * Z * Math.cos(1.15);
+        ctx.strokeStyle = 'rgba(235,235,210,0.85)'; ctx.lineWidth = 0.5 * Z;
+        ctx.beginPath(); ctx.moveTo(tipX1, tipY1); ctx.lineTo(bowX - 4.0 * Z, bowY); ctx.lineTo(tipX2, tipY2); ctx.stroke();
+        // arrow shaft + glowing tip
+        ctx.strokeStyle = '#caa472'; ctx.lineWidth = 0.7 * Z;
+        ctx.beginPath(); ctx.moveTo(bowX - 4.0 * Z, bowY); ctx.lineTo(bowX + 4.2 * Z, bowY); ctx.stroke();
+        const ag = ctx.createRadialGradient(bowX + 4.6 * Z, bowY, 0, bowX + 4.6 * Z, bowY, 2.4 * Z);
+        ag.addColorStop(0, 'rgba(' + glowS + ',0.9)'); ag.addColorStop(1, 'rgba(' + glowS + ',0)');
+        ctx.fillStyle = ag; ctx.beginPath(); ctx.arc(bowX + 4.6 * Z, bowY, 2.4 * Z, 0, 7); ctx.fill();
+        ctx.fillStyle = '#d6d6c0';
+        ctx.beginPath(); ctx.moveTo(bowX + 4.0 * Z, bowY - 0.7 * Z); ctx.lineTo(bowX + 5.2 * Z, bowY); ctx.lineTo(bowX + 4.0 * Z, bowY + 0.7 * Z); ctx.closePath(); ctx.fill();
+        ctx.lineCap = 'butt';
+      }
+      function loop(t) {
+        const P = pal(t);
+        // the whole hero "vibe" follows the unit color
+        document.documentElement.style.setProperty('--vibe-rgb', P.glow.join(','));
+        ctx = heroCtx; W = heroCv.width; H = heroCv.height; Z = 5.4;
+        drawUnit(t, P);
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+    })();
+
+    // Spawn floating particles
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 20; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (8 + Math.random() * 12) + 's';
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+      container.appendChild(p);
+    }
+
+    // Falling forest leaves
+    (function () {
+      const cols = ['#6fae2f', '#8fc63d', '#4d7c0f', '#a3d65c', '#caa14a'];
+      for (let i = 0; i < 16; i++) {
+        const l = document.createElement('div');
+        l.className = 'leaf';
+        l.style.left = Math.random() * 100 + 'vw';
+        l.style.setProperty('--leaf', cols[Math.floor(Math.random() * cols.length)]);
+        l.style.animationDuration = (9 + Math.random() * 11) + 's';
+        l.style.animationDelay = (-Math.random() * 18) + 's';
+        const sc = 0.7 + Math.random() * 1.1;
+        l.style.width = l.style.height = (9 * sc) + 'px';
+        l.style.opacity = 0.55 + Math.random() * 0.35;
+        document.body.appendChild(l);
+      }
+    })();
+
+    // Live launch countdown → JUL 1 2026 · 6 PM UTC
+    (function () {
+      const T = Date.UTC(2026, 6, 1, 18, 0, 0);
+      const dE = document.getElementById('cd-d'), hE = document.getElementById('cd-h'),
+            mE = document.getElementById('cd-m'), sE = document.getElementById('cd-s');
+      if (!dE) return;
+      const pad = n => (n < 10 ? '0' : '') + n;
+      function tick() {
+        const ms = T - Date.now();
+        if (ms <= 0) {
+          const cd = document.getElementById('countdown');
+          if (cd) cd.innerHTML = '<div class="cd-label" style="font-size:1rem">🚀 $GOBE IS LIVE</div>';
+          clearInterval(timer);
+          return;
+        }
+        const s = Math.floor(ms / 1000);
+        dE.textContent = Math.floor(s / 86400);
+        hE.textContent = pad(Math.floor((s % 86400) / 3600));
+        mE.textContent = pad(Math.floor((s % 3600) / 60));
+        sE.textContent = pad(s % 60);
+      }
+      tick();
+      const timer = setInterval(tick, 1000);
+    })();
+
+    // ── Loading: a goblin treks across the wilds, then we enter the game ──
+    (function () {
+      const btn = document.getElementById('system-btn');
+      const overlay = document.getElementById('boot-overlay');
+      const cv = document.getElementById('bootCv');
+      const fill = document.getElementById('boot-fill');
+      const cap = document.getElementById('boot-cap');
+      const bx = cv.getContext('2d');
+      const W = cv.width, H = cv.height, GY = H - 52;          // ground line
+      const phrases = ['Trekking into the wilds…', 'Stringing the bow…', 'Counting the loot…',
+                       'Waking the goblins…', 'Almost there, ser…'];
+      const trees = []; for (let i = 0; i < 9; i++) trees.push({ x: Math.random() * (W + 200) - 100, s: 0.6 + Math.random() * 0.9 });
+      const flies = []; for (let i = 0; i < 22; i++) flies.push({ x: Math.random() * W, y: Math.random() * (GY - 30), p: Math.random() * 7, sp: 0.4 + Math.random() });
+      const prints = [];
+
+      function pine(x, baseY, s) {
+        bx.fillStyle = '#0c2412';
+        for (let k = 0; k < 3; k++) {
+          const w = (26 - k * 6) * s, h = 22 * s, ty = baseY - k * 15 * s;
+          bx.beginPath(); bx.moveTo(x, ty - h); bx.lineTo(x - w, ty); bx.lineTo(x + w, ty); bx.closePath(); bx.fill();
+        }
+        bx.fillStyle = '#3a2a14'; bx.fillRect(x - 2.5 * s, baseY, 5 * s, 8 * s);
+      }
+      function rr(x, y, w, h, r, fillc, stroke) {
+        bx.beginPath(); bx.moveTo(x + r, y);
+        bx.arcTo(x + w, y, x + w, y + h, r); bx.arcTo(x + w, y + h, x, y + h, r);
+        bx.arcTo(x, y + h, x, y, r); bx.arcTo(x, y, x + w, y, r); bx.closePath();
+        bx.fillStyle = fillc; bx.fill(); if (stroke) { bx.strokeStyle = stroke; bx.lineWidth = 2; bx.stroke(); }
+      }
+      function leg(x, hipY, sw, s, col) {
+        bx.strokeStyle = col; bx.lineWidth = 7 * s; bx.lineCap = 'round';
+        bx.beginPath(); bx.moveTo(x, hipY); bx.lineTo(x + sw, hipY + 16 * s); bx.stroke();
+        bx.fillStyle = '#3a2a18'; bx.fillRect(x + sw - 4 * s, hipY + 14 * s, 9 * s, 4 * s);
+      }
+      function goblin(x, t, s) {
+        const phase = t * 0.02, bob = Math.abs(Math.sin(phase)) * 4 * s, sw = Math.sin(phase) * 8 * s;
+        const hipY = GY - 22 * s - bob;
+        bx.fillStyle = 'rgba(0,0,0,0.32)'; bx.beginPath(); bx.ellipse(x, GY + 2, 24 * s, 5 * s, 0, 0, 7); bx.fill();
+        leg(x - 3 * s, hipY, -sw, s, '#5d8b2e');
+        bx.strokeStyle = '#6b4423'; bx.lineWidth = 3 * s;
+        bx.beginPath(); bx.arc(x - 14 * s, hipY - 10 * s, 14 * s, -1.0, 1.0); bx.stroke();
+        bx.strokeStyle = 'rgba(235,235,210,.55)'; bx.lineWidth = 1.3 * s;
+        bx.beginPath(); bx.moveTo(x - 14 * s + 14 * s * Math.cos(-1), hipY - 10 * s + 14 * s * Math.sin(-1)); bx.lineTo(x - 14 * s + 14 * s * Math.cos(1), hipY - 10 * s + 14 * s * Math.sin(1)); bx.stroke();
+        rr(x - 12 * s, hipY - 24 * s, 26 * s, 28 * s, 8 * s, '#7cb342', '#3f5f1f');
+        bx.fillStyle = '#6b4a28'; bx.fillRect(x - 12 * s, hipY - 5 * s, 26 * s, 9 * s);
+        bx.strokeStyle = '#84cc16'; bx.lineWidth = 4 * s; bx.beginPath(); bx.moveTo(x - 9 * s, hipY - 22 * s); bx.lineTo(x + 12 * s, hipY - 3 * s); bx.stroke();
+        leg(x + 4 * s, hipY, sw, s, '#6fae2f');
+        bx.strokeStyle = '#6fae2f'; bx.lineWidth = 6 * s; bx.lineCap = 'round';
+        bx.beginPath(); bx.moveTo(x + 9 * s, hipY - 18 * s); bx.lineTo(x + 9 * s + sw * 0.9, hipY - 3 * s); bx.stroke();
+        const hx = x + 5 * s, hy = hipY - 24 * s;
+        bx.fillStyle = '#5d8b2e'; bx.beginPath(); bx.moveTo(hx - 9 * s, hy - 2 * s); bx.lineTo(hx - 24 * s, hy - 12 * s); bx.lineTo(hx - 7 * s, hy + 6 * s); bx.closePath(); bx.fill();
+        bx.fillStyle = '#2f1d10'; bx.fillRect(hx + 1 * s, hy - 18 * s, 3 * s, 5 * s);
+        rr(hx - 11 * s, hy - 15 * s, 28 * s, 26 * s, 8 * s, '#7cb342', '#3f5f1f');
+        bx.fillStyle = '#5d8b2e'; bx.beginPath(); bx.moveTo(hx + 15 * s, hy - 2 * s); bx.lineTo(hx + 26 * s, hy + 3 * s); bx.lineTo(hx + 15 * s, hy + 9 * s); bx.closePath(); bx.fill();
+        bx.strokeStyle = '#33240f'; bx.lineWidth = 3 * s; bx.beginPath(); bx.moveTo(hx + 1 * s, hy - 6 * s); bx.lineTo(hx + 11 * s, hy - 3 * s); bx.stroke();
+        bx.fillStyle = '#11210a'; bx.beginPath(); bx.arc(hx + 8 * s, hy + 1 * s, 4.2 * s, 0, 7); bx.fill();
+        bx.fillStyle = '#bef264'; bx.beginPath(); bx.arc(hx + 8 * s, hy + 1 * s, 2.3 * s, 0, 7); bx.fill();
+        bx.fillStyle = '#f5f5dc'; bx.beginPath(); bx.moveTo(hx + 10 * s, hy + 9 * s); bx.lineTo(hx + 14 * s, hy + 9 * s); bx.lineTo(hx + 12 * s, hy + 14 * s); bx.closePath(); bx.fill();
+      }
+
+      let raf = 0, started = 0, lastPrintX = -999;
+      function frame(now) {
+        if (!started) started = now;
+        const el = now - started, prog = Math.min(1, el / 3200);
+        fill.style.width = (prog * 100) + '%';
+        cap.textContent = phrases[Math.min(phrases.length - 1, Math.floor(prog * phrases.length))];
+        bx.clearRect(0, 0, W, H);
+        let g = bx.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, '#0a2412'); g.addColorStop(1, '#05130a'); bx.fillStyle = g; bx.fillRect(0, 0, W, H);
+        const mg = bx.createRadialGradient(W * 0.82, 56, 0, W * 0.82, 56, 130);
+        mg.addColorStop(0, 'rgba(190,242,100,0.13)'); mg.addColorStop(1, 'rgba(0,0,0,0)'); bx.fillStyle = mg; bx.fillRect(0, 0, W, H);
+        bx.fillStyle = '#e8ecc8'; bx.beginPath(); bx.arc(W * 0.82, 56, 18, 0, 7); bx.fill();
+        trees.forEach(tr => { tr.x -= (0.7 + tr.s) * 1.7; if (tr.x < -60) tr.x = W + 60 + Math.random() * 80; pine(tr.x, GY + 6, tr.s); });
+        bx.fillStyle = '#143a1d'; bx.fillRect(0, GY, W, H - GY);
+        bx.strokeStyle = 'rgba(120,190,40,0.4)'; bx.lineWidth = 2; bx.beginPath(); bx.moveTo(0, GY); bx.lineTo(W, GY); bx.stroke();
+        flies.forEach(f => { f.x -= f.sp; if (f.x < 0) f.x = W; const a = 0.4 + 0.55 * (0.5 + 0.5 * Math.sin(now / 300 + f.p)); bx.fillStyle = 'rgba(190,242,100,' + a.toFixed(2) + ')'; bx.beginPath(); bx.arc(f.x, f.y, 1.7, 0, 7); bx.fill(); });
+        const gx = -90 + prog * (W + 180), s = 2.2;
+        if (gx - lastPrintX > 34) { prints.push({ x: gx - 16, a: 0.9 }); lastPrintX = gx; }
+        prints.forEach(p => { p.a -= 0.012; if (p.a > 0) { bx.fillStyle = 'rgba(70,46,22,' + p.a.toFixed(2) + ')'; bx.beginPath(); bx.ellipse(p.x, GY + 6, 4, 2, 0, 0, 7); bx.fill(); } });
+        goblin(gx, el, s);
+        if (prog < 1) raf = requestAnimationFrame(frame);
+      }
+
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = this.href;
+        overlay.classList.add('active');
+        started = 0; lastPrintX = -999; prints.length = 0;
+        raf = requestAnimationFrame(frame);
+        setTimeout(() => { window.location.href = target; }, 3300);
+      });
+    })();
+  </script>
+</body>
+</html>

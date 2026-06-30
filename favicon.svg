@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 64 64">
+  <!-- GOBLIN — voxel head -->
+  <rect x="0" y="0" width="64" height="64" rx="14" fill="#0e1a0a"/>
+  <ellipse cx="32" cy="58" rx="20" ry="5" fill="#84cc16" opacity="0.35"/>
+  <!-- pointy ears -->
+  <polygon points="7,28 17,25 15,41" fill="#689f38" stroke="rgba(0,0,0,0.4)" stroke-linejoin="round"/>
+  <polygon points="57,28 47,25 49,41" fill="#558b2f" stroke="rgba(0,0,0,0.4)" stroke-linejoin="round"/>
+  <g stroke="rgba(0,0,0,0.45)" stroke-width="1" stroke-linejoin="round">
+    <!-- head cube -->
+    <polygon points="11,42 32,53 32,30 11,20" fill="#689f38"/>
+    <polygon points="32,53 53,42 53,20 32,30" fill="#558b2f"/>
+    <polygon points="32,30 53,20 32,9 11,20" fill="#8bc34a"/>
+  </g>
+  <!-- glowing eyes -->
+  <circle cx="25" cy="34" r="3.4" fill="#1a1205"/>
+  <circle cx="25" cy="34" r="2.0" fill="#bef264"/>
+  <circle cx="39" cy="34" r="3.4" fill="#1a1205"/>
+  <circle cx="39" cy="34" r="2.0" fill="#bef264"/>
+  <!-- big crooked nose -->
+  <polygon points="29,38 35,38 32,47" fill="#4d7c0f"/>
+  <!-- fangs -->
+  <polygon points="27,47 30,47 28.5,51" fill="#f5f5dc"/>
+  <polygon points="34,47 37,47 35.5,51" fill="#f5f5dc"/>
+</svg>

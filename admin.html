@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>GOBLIN — Admin · Airdrop List</title>
+<style>
+  :root { --bg:#05080f; --panel:#0b1320; --line:rgba(120,190,40,0.25); --teal:#a3d65c; --dim:#7c93a0; --gold:#ffd84d; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:#e9fffb; font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace; padding:24px 16px 60px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font-size:1.1rem; letter-spacing:0.3em; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:0.74rem; letter-spacing:0.08em; margin-bottom:20px; }
+  .gate { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px; max-width:420px; }
+  .gate label { display:block; color:var(--dim); font-size:0.66rem; letter-spacing:0.12em; margin-bottom:6px; }
+  input { width:100%; background:#05101a; border:1px solid var(--line); border-radius:8px; color:#e9fffb; font-family:inherit; font-size:0.82rem; padding:10px 12px; outline:none; }
+  input:focus { border-color:var(--teal); }
+  button { font-family:inherit; font-weight:700; letter-spacing:0.06em; cursor:pointer; border:none; border-radius:8px; }
+  .btn { background:var(--teal); color:#04130f; padding:10px 16px; font-size:0.78rem; margin-top:12px; }
+  .btn:hover { filter:brightness(1.1); }
+  .btn.alt { background:transparent; border:1px solid var(--line); color:var(--teal); }
+  .msg { color:#f87171; font-size:0.7rem; margin-top:10px; min-height:1em; }
+  .bar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:14px 0; }
+  .pill { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:7px 12px; font-size:0.72rem; color:var(--dim); }
+  .pill b { color:var(--teal); }
+  .sechd { color:var(--gold); font-size:0.8rem; letter-spacing:0.14em; margin:26px 0 8px; }
+  table { width:100%; border-collapse:collapse; font-size:0.72rem; }
+  th { color:var(--dim); text-align:left; font-weight:400; letter-spacing:0.06em; padding:6px 8px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); }
+  td { padding:7px 8px; border-bottom:1px solid rgba(124,147,160,0.12); vertical-align:middle; }
+  tr:hover td { background:rgba(120,190,40,0.05); }
+  .wallet { color:#e9fffb; font-size:0.7rem; word-break:break-all; }
+  .copy { background:rgba(120,190,40,0.16); color:var(--teal); border:1px solid var(--line); border-radius:6px; padding:3px 8px; font-size:0.6rem; margin-left:6px; }
+  .copy:hover { background:rgba(168,222,80,0.3); }
+  .amt { color:var(--teal); font-weight:700; text-align:right; }
+  .tablewrap { max-height:60vh; overflow:auto; border:1px solid var(--line); border-radius:10px; }
+  .empty { color:var(--dim); padding:14px; font-size:0.72rem; }
+  a { color:var(--teal); }
+  .announce { background:linear-gradient(180deg,rgba(255,216,77,0.09),rgba(11,19,32,0.5)); border:1px solid rgba(255,216,77,0.45); border-radius:12px; padding:14px 16px; margin:6px 0 10px; }
+  .announce-hd { color:var(--gold); font-size:0.72rem; letter-spacing:0.12em; margin-bottom:8px; }
+  textarea { width:100%; background:#05101a; border:1px solid var(--line); border-radius:8px; color:#e9fffb; font-family:inherit; font-size:0.78rem; line-height:1.55; padding:10px 12px; resize:vertical; outline:none; }
+  textarea:focus { border-color:var(--teal); }
+  .note { color:var(--dim); font-size:0.66rem; margin:2px 0 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🛡 GOBLIN ADMIN</h1>
+  <div class="sub">Wallet addresses of players who claimed — copy &amp; send the airdrop.</div>
+
+  <div id="gate" class="gate">
+    <label>ADMIN KEY</label>
+    <input id="key" type="password" placeholder="enter ADMIN_KEY from config.php" autocomplete="off">
+    <button id="go" class="btn">🔓 VIEW AIRDROP LIST</button>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <div id="panel" style="display:none;">
+    <div class="bar">
+      <span class="pill">💸 CLAIMED: <b id="cCount">0</b></span>
+      <span class="pill">🔗 CONNECTED: <b id="wCount">0</b></span>
+      <button id="copyAll" class="btn">⧉ COPY ALL CLAIMER WALLETS</button>
+      <button id="csv" class="btn alt">⬇ EXPORT CSV</button>
+      <button id="reload" class="btn alt">↻ REFRESH</button>
+      <button id="logout" class="btn alt">⎋ LOCK</button>
+    </div>
+
+    <div class="announce">
+      <div class="announce-hd">📣 AIRDROP ANNOUNCEMENT — copy &amp; share to the winners</div>
+      <textarea id="annMsg" rows="5">🎉 Congratulations! You have received a $GOBE airdrop — check your wallet! 🪂
+
+Don't forget to share GOBE’S ADVENTURE and invite your friends to play 👉 https://gobesadventure.xyz 🎮
+
+See you in the world! #GOBLIN $GOBE</textarea>
+      <button id="copyAnn" class="btn">⧉ COPY MESSAGE</button>
+    </div>
+
+    <div class="sechd">💸 CLAIMERS — AIRDROP THESE WALLETS</div>
+    <div class="note">Bots / spoofed claims are hidden — each winner gets a flat <b id="airAmt" style="color:var(--teal)">50,000</b> $GOBE.</div>
+    <div class="tablewrap"><table id="claimsTbl">
+      <thead><tr><th>#</th><th>NAME</th><th>WALLET</th><th style="text-align:right;">$GOBE</th><th>EMAIL</th><th>DATE</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+
+    <div class="sechd">🔗 ALL CONNECTED WALLETS</div>
+    <div class="tablewrap"><table id="connTbl">
+      <thead><tr><th>#</th><th>NAME</th><th>WALLET</th><th>LV</th><th style="text-align:right;">POINTS</th><th style="text-align:right;">CLAIMED</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+var keyEl = document.getElementById('key'), msg = document.getElementById('msg');
+var gate = document.getElementById('gate'), panel = document.getElementById('panel');
+var DATA = null;
+// ── AIRDROP SETTINGS (edit here) ──────────────────────────────
+var BOT_MAX = 150000;        // raw claims above this = bot/spoofed → hidden from the list
+var AIRDROP_AMOUNT = 50000;  // flat $GOBE every winner receives (change this number)
+// ──────────────────────────────────────────────────────────────
+try { keyEl.value = localStorage.getItem('goblin_admin_key') || ''; } catch (e) {}
+
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function fmt(n) { return Number(n || 0).toLocaleString('en-US'); }
+function fmtDate(t) { if (!t) return '—'; try { return new Date(t * 1000).toISOString().slice(0, 16).replace('T', ' '); } catch (e) { return '—'; } }
+function copyText(txt, btn) {
+  function done() { if (btn) { var p = btn.textContent; btn.textContent = '✓'; setTimeout(function () { btn.textContent = p; }, 1000); } }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, done);
+  else { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta); done(); }
+}
+
+async function load() {
+  var key = keyEl.value.trim();
+  if (!key) { msg.textContent = 'enter the admin key'; return; }
+  msg.style.color = '#7c93a0'; msg.textContent = 'loading…';
+  var r;
+  try { r = await fetch('api.php', { method: 'POST', body: JSON.stringify({ a: 'admin', key: key }) }).then(function (x) { return x.json(); }); }
+  catch (e) { r = null; }
+  if (!r || r.error) {
+    msg.style.color = '#f87171';
+    msg.textContent = !r ? 'no connection (needs the live PHP site)' : r.error === 'bad-key' ? 'wrong admin key' : ('error: ' + r.error);
+    return;
+  }
+  try { localStorage.setItem('goblin_admin_key', key); } catch (e) {}
+  // drop bots/spoofed claims, then give every legit winner the flat airdrop amount
+  r.claimers = (r.claimers || [])
+    .filter(function (c) { return Number(c.amount || 0) <= BOT_MAX; })
+    .map(function (c) { c.amount = AIRDROP_AMOUNT; return c; });
+  r.claimCount = r.claimers.length;
+  DATA = r;
+  render(r);
+  gate.style.display = 'none'; panel.style.display = 'block';
+}
+
+function render(r) {
+  document.getElementById('cCount').textContent = r.claimCount || 0;
+  document.getElementById('wCount').textContent = r.walletCount || 0;
+  var aa = document.getElementById('airAmt'); if (aa) aa.textContent = fmt(AIRDROP_AMOUNT);
+  var cb = document.querySelector('#claimsTbl tbody'); cb.innerHTML = '';
+  (r.claimers || []).forEach(function (c, i) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + esc(c.name) + '</td>'
+      + '<td><span class="wallet">' + esc(c.wallet) + '</span></td>'
+      + '<td class="amt">' + fmt(c.amount) + '</td><td style="color:#7c93a0">' + esc(c.email) + '</td><td style="color:#7c93a0">' + fmtDate(c.t) + '</td>';
+    var btn = document.createElement('button'); btn.className = 'copy'; btn.textContent = '⧉';
+    btn.onclick = function () { copyText(c.wallet, btn); };
+    tr.children[2].appendChild(btn);
+    cb.appendChild(tr);
+  });
+  if (!(r.claimers || []).length) cb.innerHTML = '<tr><td colspan="6" class="empty">no claims yet</td></tr>';
+
+  var wb = document.querySelector('#connTbl tbody'); wb.innerHTML = '';
+  (r.connected || []).forEach(function (p, i) {
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + esc(p.name) + '</td>'
+      + '<td><span class="wallet">' + esc(p.wallet) + '</span></td>'
+      + '<td style="color:#7dd3fc">' + p.level + '</td><td class="amt">' + fmt(p.points) + '</td><td style="text-align:right;color:#7c93a0">' + fmt(p.claimed) + '</td>';
+    var btn = document.createElement('button'); btn.className = 'copy'; btn.textContent = '⧉';
+    btn.onclick = function () { copyText(p.wallet, btn); };
+    tr.children[2].appendChild(btn);
+    wb.appendChild(tr);
+  });
+  if (!(r.connected || []).length) wb.innerHTML = '<tr><td colspan="6" class="empty">no players yet</td></tr>';
+}
+
+document.getElementById('go').addEventListener('click', load);
+keyEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') load(); });
+document.getElementById('reload').addEventListener('click', load);
+document.getElementById('logout').addEventListener('click', function () {
+  try { localStorage.removeItem('goblin_admin_key'); } catch (e) {}
+  DATA = null; panel.style.display = 'none'; gate.style.display = 'block'; keyEl.value = ''; msg.textContent = '';
+});
+document.getElementById('copyAll').addEventListener('click', function (e) {
+  if (!DATA) return;
+  var list = (DATA.claimers || []).map(function (c) { return c.wallet; }).join('\n');
+  copyText(list, e.currentTarget);
+});
+document.getElementById('csv').addEventListener('click', function () {
+  if (!DATA) return;
+  var rows = [['wallet', 'amount_goblin', 'name', 'email', 'date_utc']];
+  (DATA.claimers || []).forEach(function (c) { rows.push([c.wallet, c.amount, c.name, c.email, fmtDate(c.t)]); });
+  var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+  var a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'goblin-airdrop-list.csv'; a.click();
+});
+document.getElementById('copyAnn').addEventListener('click', function (e) {
+  copyText(document.getElementById('annMsg').value, e.currentTarget);
+});
+</script>
+</body>
+</html>
